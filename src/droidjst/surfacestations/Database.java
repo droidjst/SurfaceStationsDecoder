@@ -39,7 +39,7 @@ public class Database
         try
         {
             statement.executeUpdate(
-                "CREATE TABLE stations" +
+                "CREATE TABLE " + Const.DB_TABLE +
                 " ( _id      INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "   cd       TEXT," +
                 "   station  TEXT," +
@@ -64,11 +64,11 @@ public class Database
         }
         finally
         {
-            finalizeConnection(connection, statement);
+            DatabaseUtil.finalizeConnection(connection, statement);
         }
     }
     
-    public int getCount()
+    public int getCount() throws SQLException
     {
         Connection connection = null;
         Statement statement = null;
@@ -83,7 +83,7 @@ public class Database
         
         try
         {
-            String sql_count = "SELECT COUNT(*) FROM apod;";
+            String sql_count = "SELECT COUNT(*) FROM " + Const.DB_TABLE + ";";
             
             resultset = statement.executeQuery(sql_count);
             
@@ -93,18 +93,18 @@ public class Database
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
+            throw e;
         }
         finally
         {
-            finalizeResultSet(resultset);
-            finalizeConnection(connection, statement);
+            DatabaseUtil.finalizeResultSet(resultset);
+            DatabaseUtil.finalizeConnection(connection, statement);
         }
         
         return count;
     }
     
-    public long getNewest()
+    public long getNewest() throws SQLException
     {
         Connection connection = null;
         Statement statement = null;
@@ -119,7 +119,7 @@ public class Database
         
         try
         {
-            String sql_max = "SELECT MAX(date) FROM apod;";
+            String sql_max = "SELECT MAX(date) FROM " + Const.DB_TABLE + ";";
             
             resultset = statement.executeQuery(sql_max);
             
@@ -129,18 +129,18 @@ public class Database
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
+            throw e;
         }
         finally
         {
-            finalizeResultSet(resultset);
-            finalizeConnection(connection, statement);
+            DatabaseUtil.finalizeResultSet(resultset);
+            DatabaseUtil.finalizeConnection(connection, statement);
         }
         
         return date;
     }
     
-    public long getOldest()
+    public long getOldest() throws SQLException
     {
         Connection connection = null;
         Statement statement = null;
@@ -155,7 +155,7 @@ public class Database
         
         try
         {
-            String sql_max = "SELECT MIN(date) FROM apod;";
+            String sql_max = "SELECT MIN(date) FROM " + Const.DB_TABLE + ";";
             
             resultset = statement.executeQuery(sql_max);
             
@@ -165,12 +165,12 @@ public class Database
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
+            throw e;
         }
         finally
         {
-            finalizeResultSet(resultset);
-            finalizeConnection(connection, statement);
+            DatabaseUtil.finalizeResultSet(resultset);
+            DatabaseUtil.finalizeConnection(connection, statement);
         }
         
         return date;
@@ -197,7 +197,7 @@ public class Database
             
             exc_thrown = true;
             
-            finalizeConnection(connection, statement);
+            DatabaseUtil.finalizeConnection(connection, statement);
         }
         
         if(exc_thrown == false)
@@ -227,7 +227,7 @@ public class Database
             
             try
             {
-                statement.executeQuery("SELECT * FROM stations LIMIT 1");
+                statement.executeQuery("SELECT * FROM " + Const.DB_TABLE + " LIMIT 1");
             }
             catch (Exception e)
             {
@@ -242,80 +242,9 @@ public class Database
         }
         finally
         {
-            finalizeConnection(connection, statement);
+            DatabaseUtil.finalizeConnection(connection, statement);
         }
         
          return exc_thrown == false;
-    }
-    
-    public void finalizeConnection(Connection connection, Statement ... statement)
-    {
-        if(statement != null)
-        {
-            for(Statement _statement : statement)
-            {
-                try
-                {
-                    _statement.close();
-                }
-                catch (SQLException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-        
-        if(connection != null)
-        {
-            try
-            {
-                connection.commit();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                try
-                {
-                    connection.close();
-                }
-                catch (SQLException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-    
-    public void finalizeStatement(Statement statement)
-    {
-        if(statement != null)
-        {
-            try
-            {
-                statement.close();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    public void finalizeResultSet(ResultSet resultset)
-    {
-        if(resultset != null)
-        {
-            try
-            {
-                resultset.close();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
     }
 }

@@ -23,17 +23,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseUtil
 {
+    private final String PATH = new File("").getAbsolutePath();
+    
     public void parseFileToSQLite() throws IOException, SQLException
     {
-        String uri = new File("").getAbsolutePath() + Const.FILE_SEP + "stations";
-        
-        File file = new File(uri);
-        
         Connection connection = null;
         Statement statement = null;
         
@@ -47,15 +46,10 @@ public class DatabaseUtil
         BufferedReader breader = null;
         
         ParseUtil parseutil = new ParseUtil();
-        Coordinates coords = new Coordinates();
         
         try
         {
-            breader = new BufferedReader(new FileReader(file), 16 * 1024);
-            
-            String format = 
-                "INSERT INTO stations (cd, station, icao, iata, synop, lat, lon, elev, m, n, v, u, a, c, p, cc)" +
-                " VALUES ('%s', '%s', '%s', '%s', '%s', %f, %f, %d, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s')";
+            breader = new BufferedReader(new FileReader(PATH + Const.FILE_SEP + "stations"), 16 * 1024);
             
             String line = null;
             
@@ -75,28 +69,9 @@ public class DatabaseUtil
                 
                 parseutil.parseLine(line, true);
                 
-                String sql_insert = 
-                    String.format(format, 
-                            parseutil.getStateAbbrv(),
-                            parseutil.getStationName().replace("'", "''"),
-                            parseutil.getICAOId(),
-                            parseutil.getIATAId(),
-                            parseutil.getSynopticNumber(),
-                            coords.convertToDecimalDegrees(parseutil.getLatitude()), 
-                            coords.convertToDecimalDegrees(parseutil.getLongitude()),
-                            Integer.parseInt(parseutil.getElevation()),
-                            parseutil.getMETARStationValue(), 
-                            parseutil.getNEXRADSiteValue(), 
-                            parseutil.getAviationSpecificFlagValue(), 
-                            parseutil.getUpperAirOrWindProfilerSiteValue(), 
-                            parseutil.getAutoValue(), 
-                            parseutil.getOfficeTypeValue(),
-                            Integer.parseInt(parseutil.getPlottingPriority()),
-                            parseutil.getCountryCode());
-                
                 statement = connection.createStatement();
                 
-                statement.executeUpdate(sql_insert);
+                statement.executeUpdate(createInsertStatement(parseutil));
             }
         }
         catch (IOException e)
@@ -109,16 +84,109 @@ public class DatabaseUtil
         }
         finally
         {
+            ReaderUtil.finalizeReaders(breader);
+            
+            DatabaseUtil.finalizeConnection(connection, statement);
+        }
+    }
+    
+    private String createInsertStatement(ParseUtil parseutil)
+    {
+        String format = 
+            "INSERT INTO %s (cd, station, icao, iata, synop, lat, lon, elev, m, n, v, u, a, c, p, cc)" +
+            " VALUES ('%s', '%s', '%s', '%s', '%s', %f, %f, %d, '%s', '%s', '%s', '%s', '%s', '%s', %d, '%s')";
+        
+        String sql_insert = 
+            String.format(format, 
+                    Const.DB_TABLE,
+                    parseutil.getStateAbbrv(),
+                    parseutil.getStationName().replace("'", "''"),
+                    parseutil.getICAOId(),
+                    parseutil.getIATAId(),
+                    parseutil.getSynopticNumber(),
+                    Coordinates.convertToDecimalDegrees(parseutil.getLatitude()), 
+                    Coordinates.convertToDecimalDegrees(parseutil.getLongitude()),
+                    Integer.parseInt(parseutil.getElevation()),
+                    parseutil.getMETARStationValue(), 
+                    parseutil.getNEXRADSiteValue(), 
+                    parseutil.getAviationSpecificFlagValue(), 
+                    parseutil.getUpperAirOrWindProfilerSiteValue(), 
+                    parseutil.getAutoValue(), 
+                    parseutil.getOfficeTypeValue(),
+                    Integer.parseInt(parseutil.getPlottingPriority()),
+                    parseutil.getCountryCode());
+        
+        return sql_insert;
+    }
+    
+    public static void finalizeConnection(Connection connection, Statement ... statement)
+    {
+        if(statement != null)
+        {
+            for(Statement _statement : statement)
+            {
+                try
+                {
+                    _statement.close();
+                }
+                catch (SQLException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        if(connection != null)
+        {
             try
             {
-                breader.close();
+                connection.commit();
             }
-            catch (IOException e)
+            catch (SQLException e)
             {
                 e.printStackTrace();
             }
-            
-            database.finalizeConnection(connection, statement);
+            finally
+            {
+                try
+                {
+                    connection.close();
+                }
+                catch (SQLException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    public static void finalizeStatement(Statement statement)
+    {
+        if(statement != null)
+        {
+            try
+            {
+                statement.close();
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public static void finalizeResultSet(ResultSet resultset)
+    {
+        if(resultset != null)
+        {
+            try
+            {
+                resultset.close();
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 }
