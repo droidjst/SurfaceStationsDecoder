@@ -18,41 +18,40 @@
 
 package droidjst.surfacestations;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.sql.SQLException;
 
 public class Driver
 {
     private static HTTPUtil httputil;
+    private static Database database;
+    private static DatabaseUtil dbutil;
     
     private static Exception exception;
     
     private static void init()
     {
         httputil = new HTTPUtil();
+        
+        database = new Database();
+        dbutil = new DatabaseUtil();
     }
     
     public static void main(String[] args)
     {
         init();
         
-        String uri = new File("").getAbsolutePath() + Const.FILE_SEP + "stations";
-        
-        File file = new File(uri);
-        
-        if(file.exists() == false)
+        if(database.isAvailable() == false)
         {
             try
             {
-                httputil.downloadWebpage(Const.URL_NCAR_RAP_STATIONS, file);
+                httputil.downloadWebpage(Const.URL_NCAR_RAP_STATIONS);
+                
+                database.createSQLiteTable();
+                
+                dbutil.parseFileToSQLite();
             }
-            catch (MalformedURLException e)
-            {
-                exception = e;
-            }
-            catch (IOException e)
+            catch (IOException | SQLException e)
             {
                 exception = e;
             }
@@ -63,35 +62,6 @@ public class Driver
                 
                 System.exit(1);
             }
-        }
-        
-        Database database = new Database();
-        
-        if(database.isAvailable() == false)
-        {
-            try
-            {
-                database.createSQLiteTable();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        
-        DatabaseUtil databaseutil = new DatabaseUtil();
-        
-        try
-        {
-            databaseutil.parseFileToSQLite();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
         }
     }
     

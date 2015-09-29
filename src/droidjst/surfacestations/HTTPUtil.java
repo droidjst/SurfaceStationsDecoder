@@ -29,7 +29,7 @@ import java.net.URL;
 
 public class HTTPUtil
 {
-    public void downloadWebpage(String url_string, File file) throws MalformedURLException, IOException
+    public void downloadWebpage(String url_string) throws MalformedURLException, IOException
     {
         URL url;
         
@@ -45,7 +45,7 @@ public class HTTPUtil
             
             bistream = new BufferedInputStream(url.openStream(), 16 * 1024);
             
-            fostream = new FileOutputStream(file);
+            fostream = new FileOutputStream(new File("").getAbsolutePath() + Const.FILE_SEP + "stations");
             
             len = -1;
             data = new byte[4 * 1024];
