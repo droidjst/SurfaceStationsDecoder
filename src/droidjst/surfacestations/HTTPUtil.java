@@ -22,13 +22,13 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class HTTPUtil
 {
+    private final String PATH = new File("").getAbsolutePath();
+    
     public void downloadWebpage(String url_string) throws MalformedURLException, IOException
     {
         URL url;
@@ -45,7 +45,7 @@ public class HTTPUtil
             
             bistream = new BufferedInputStream(url.openStream(), 16 * 1024);
             
-            fostream = new FileOutputStream(new File("").getAbsolutePath() + Const.FILE_SEP + "stations");
+            fostream = new FileOutputStream(PATH + Const.FILE_SEP + "stations");
             
             len = -1;
             data = new byte[4 * 1024];
@@ -65,55 +65,8 @@ public class HTTPUtil
         }
         finally
         {
-            finalizeOutputStreams(fostream);
-            finalizeInputStreams(bistream);
-        }
-    }
-    
-    private void finalizeInputStreams(InputStream ... istreams) throws IOException
-    {
-        for(InputStream istream : istreams)
-        {
-            if(istream != null)
-            {
-                try
-                {
-                    istream.close();
-                }
-                catch (IOException e)
-                {
-                    throw e;
-                }
-            }
-        }
-    }
-    
-    private void finalizeOutputStreams(OutputStream ... ostreams) throws IOException
-    {
-        for(OutputStream ostream : ostreams)
-        {
-            if(ostream != null)
-            {
-                try
-                {
-                    ostream.flush();
-                }
-                catch (IOException e)
-                {
-                    throw e;
-                }
-                finally
-                {
-                    try
-                    {
-                        ostream.close();
-                    }
-                    catch (IOException e)
-                    {
-                        throw e;
-                    }
-                }
-            }
+            StreamUtil.finalizeOutputStreams(fostream);
+            StreamUtil.finalizeInputStreams(bistream);
         }
     }
 }
