@@ -20,7 +20,7 @@ package droidjst.surfacestations;
 
 public class Coordinates
 {
-    public float convertToDecimalDegrees(String text)
+    public static float convertToDecimalDegrees(String text)
     {
         String hemisphere = text.substring(text.length() - 1);
         
