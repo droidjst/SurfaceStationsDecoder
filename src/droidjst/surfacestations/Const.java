@@ -27,6 +27,7 @@ public class Const
     public final static String STATIONS_FILE = "stations";
     
     public final static String DB_NAME = "stations.db";
+    public final static String DB_TABLE = "stations";
     
     public final static String FILE_SEP = File.separator;
 }
