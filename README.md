@@ -1,8 +1,10 @@
-NCAR RAP Surface Stations Database Utility
+NCAR RAP Surface Stations Decoding Utility
 ===
 
-Utility used to download the stations text file from http://weather.rap.ucar.edu/.  
-Uses [sqlite-jdbc-3.8.11.1](https://www.sqlite.org/)
+Utility used to parse fixed-width text into a database.  
+Original data is queried from [http://weather.rap.ucar.edu/surface/stations.txt](http://weather.rap.ucar.edu/surface/stations.txt).  
+
+Uses the [sqlite-jdbc-3.8.11.1](https://www.sqlite.org/) library.  
 
 
 ![A Very Large Array of Radio Telescopes](vla_ss_big.gif "A Very Large Array of Radio Telescopes")
@@ -29,7 +31,7 @@ If the *EGit* plug-in is already installed go to step 3.
 2. Choose "Finish"
 
 Troubleshooting:    
-If there is an error with the Referenced Libraries folder make sure the Project Build Paths (Right click the project in Project Explorer => Build Path => Configure Build Path...) have both the sqlite-jdbc jar file referenced, with a tick mark under the "Order and Export" section.  For all other inquiries send me an email droidjst@gmail.com.  
+If there is an error with the Referenced Libraries folder make sure the Project Build Paths (Right click the project in Project Explorer => Build Path => Configure Build Path...) has the sqlite-jdbc jar file referenced, with a tick mark under the "Order and Export" section.  For all other inquiries send me an email droidjst@gmail.com.  
 
 ***
 
